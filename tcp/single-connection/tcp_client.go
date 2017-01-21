@@ -8,8 +8,7 @@ import "fmt"
 
 func runExperiment() int64 {
 
-	a := []byte{'A'}
-	ack := make([]byte, 1)
+	a := make([]byte, 1000000)
 
 	start := time.Now()
 
@@ -19,22 +18,10 @@ func runExperiment() int64 {
 		os.Exit(1)
 	}
 	conn.Write(a)
-
-	_, err1 := conn.Read(ack)
-	var elapsed time.Duration
-	if ack[0] != 0 {
-		elapsed = time.Since(start)
-		fmt.Println(ack)
-	}
-
-	if err1 != nil {
-		fmt.Println(err1)
-		os.Exit(1)
-	}
-
 	conn.Close()
 
-	return elapsed.Nanoseconds()
+	log.Printf("Took %d Microseconds", (time.Since(start).Nanoseconds())/1000)
+	return time.Since(start).Nanoseconds()
 }
 
 func main() {
@@ -45,5 +32,5 @@ func main() {
 		i = i + 1
 	}
 
-	log.Printf("Took %d Microseconds, on average", (timeTrack / 10) / 1000)
+	log.Printf("Took %d Microseconds, on average", (timeTrack/10)/1000)
 }
