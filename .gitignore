@@ -27,3 +27,8 @@
 *.exe
 *.out
 *.app
+
+# Go directories
+src/
+bin/
+
