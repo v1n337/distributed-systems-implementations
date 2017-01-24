@@ -13,7 +13,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	tmp := make([]byte, 65500)
+	expectedDataSize := 100000
+	tmp := make([]byte, expectedDataSize)
 
 	for {
 		n, _, err := ln.ReadFromUDP(tmp)
@@ -24,7 +25,9 @@ func main() {
 
 		fmt.Println(n)
 
-		s := string(tmp[:])
-		fmt.Println(s)
+		if n < expectedDataSize {
+			fmt.Println(expectedDataSize -n, " packets dropped")
+		}
+
 	}
 }
