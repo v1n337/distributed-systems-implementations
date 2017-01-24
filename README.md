@@ -7,6 +7,7 @@
 * [U-Net](https://github.com/v1n337/distributed-systems-implementations/blob/master/notes/notes_2017-01-13.md)
 * [Fault Tolerance](https://github.com/v1n337/distributed-systems-implementations/blob/master/notes/notes_2017-01-18.md)
 * [Consistency - Part 1](https://github.com/v1n337/distributed-systems-implementations/blob/master/notes/notes_2017-01-20.md)
+* [Consistency - Part 2](https://github.com/v1n337/distributed-systems-implementations/blob/master/notes/notes_2017-01-24.md)
 
 
 ## Reading Questions
