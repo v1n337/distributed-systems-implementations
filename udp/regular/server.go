@@ -3,6 +3,7 @@ package main
 import "net"
 import "fmt"
 import "os"
+import "encoding/binary"
 
 func main() {
 
@@ -13,21 +14,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	expectedDataSize := 100000
+	expectedDataSize := 1000
 	tmp := make([]byte, expectedDataSize)
 
+	j := 0
 	for {
-		n, _, err := ln.ReadFromUDP(tmp)
+		_, _, err := ln.ReadFromUDP(tmp)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		fmt.Println(n)
+    	data := int64(binary.LittleEndian.Uint64(tmp))
 
-		if n < expectedDataSize {
-			fmt.Println(expectedDataSize -n, " packets dropped")
-		}
+    	if int(data) != j {
+    		fmt.Println("Packets dropped at ", j)
+    		os.Exit(1)
+    	}
 
+		j++
 	}
 }

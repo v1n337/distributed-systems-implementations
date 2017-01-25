@@ -3,10 +3,12 @@ package main
 import "net"
 import "os"
 import "fmt"
+// import "time"
+import "encoding/binary"
 
 func main() {
 
-	dataSize := 65500
+	dataSize := 8
 	a := make([]byte, dataSize)
 
 	i := 0
@@ -24,7 +26,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	conn.Write(a)
+	var j int64
+	j = 0
+	for {
+		binary.LittleEndian.PutUint64(a, uint64(j))
+		conn.Write(a)
+
+		j++
+		// time.Sleep(100 * time.Millisecond)
+	}
 
 	conn.Close()
 }
