@@ -7,7 +7,7 @@ import "encoding/binary"
 
 func main() {
 
-	ServerAddr, err := net.ResolveUDPAddr("udp", ":10001")
+	ServerAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:10001")
 	ln, err := net.ListenUDP("udp", ServerAddr)
 	if err != nil {
 		fmt.Println(err)

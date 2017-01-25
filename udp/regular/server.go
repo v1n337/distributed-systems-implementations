@@ -17,7 +17,6 @@ func main() {
 	expectedDataSize := 8
 	tmp := make([]byte, expectedDataSize)
 
-	numTests := 0
 	j := 0
 	for {
 		_, _, err := ln.ReadFromUDP(tmp)
@@ -30,11 +29,7 @@ func main() {
 
 		if int(data) != j {
 			fmt.Println("Packets dropped at ", j)
-			numTests--
-			if numTests == 0 {
-				os.Exit(0)
-			}
-			j = int(data)
+			os.Exit(0)
 		}
 
 		j++

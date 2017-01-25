@@ -17,9 +17,8 @@ func main() {
 	}
 
 	ServerAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:10001")
-	LocalAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:0")
 
-	conn, err := net.DialUDP("udp", LocalAddr, ServerAddr)
+	conn, err := net.DialUDP("udp", nil, ServerAddr)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -30,7 +29,6 @@ func main() {
 	for {
 		binary.LittleEndian.PutUint64(a, uint64(j))
 		conn.Write(a)
-
 		j++
 	}
 
