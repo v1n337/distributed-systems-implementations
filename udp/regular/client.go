@@ -3,7 +3,6 @@ package main
 import "net"
 import "os"
 import "fmt"
-// import "time"
 import "encoding/binary"
 
 func main() {
@@ -33,7 +32,6 @@ func main() {
 		conn.Write(a)
 
 		j++
-		// time.Sleep(100 * time.Millisecond)
 	}
 
 	conn.Close()
