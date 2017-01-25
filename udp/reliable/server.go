@@ -3,31 +3,40 @@ package main
 import "net"
 import "fmt"
 import "os"
+import "encoding/binary"
 
 func main() {
-	ack := []byte{1}
 
 	ServerAddr, err := net.ResolveUDPAddr("udp", ":10001")
-	AckAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:10002")
-
-	conn, err := net.ListenUDP("udp", ServerAddr)
-
+	ln, err := net.ListenUDP("udp", ServerAddr)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	msg := make([]byte, 100)
+	expectedDataSize := 8
+	tmp := make([]byte, expectedDataSize)
 
+	numTests := 0
+	j := 0
 	for {
-		_, _, err := conn.ReadFromUDP(msg)
+		_, _, err := ln.ReadFromUDP(tmp)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println(msg)
 
-		connClient, err := net.DialUDP("udp", nil, AckAddr)
-		connClient.Write(ack)
+		data := int64(binary.LittleEndian.Uint64(tmp))
+
+		if int(data) != j {
+			fmt.Println("Packets dropped at ", j)
+			numTests--
+			if numTests == 0 {
+				os.Exit(0)
+			}
+			j = int(data)
+		}
+
+		j++
 	}
 }
