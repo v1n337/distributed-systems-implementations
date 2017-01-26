@@ -3,20 +3,29 @@ package main
 import "net"
 import "os"
 import "fmt"
-import "encoding/binary"
+
+
+func ackReceived(conn UDPConn) bool {
+	n, _, err := ln.ReadFromUDP(tmp)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
 
 func main() {
 
-	dataSize := 8
-	a := make([]byte, dataSize)
+	dataSize := 1
+	data := make([]byte, dataSize)
 
 	i := 0
 	for i < dataSize {
-		a[i] = 1
+		data[i] = 1
 		i += 1
 	}
 
-	ServerAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:10001")
+	ServerAddr, err := net.ResolveUDPAddr("udp", ":10001")
+	ClientAddr, err := net.ResolveUDPAddr("udp", ":10002")
 
 	conn, err := net.DialUDP("udp", nil, ServerAddr)
 	if err != nil {
@@ -24,12 +33,22 @@ func main() {
 		os.Exit(1)
 	}
 
-	var j int64
-	j = 0
-	for {
-		binary.LittleEndian.PutUint64(a, uint64(j))
-		conn.Write(a)
-		j++
+	ln, err := net.ListenUDP("udp", ServerAddr)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	bytesToSend := 10000
+	for bytesToSend > 0 {
+		for {
+			conn.Write(data)
+
+			if ackReceived(ln) {
+				bytesToSend--
+				break
+			}
+		}
 	}
 
 	conn.Close()
