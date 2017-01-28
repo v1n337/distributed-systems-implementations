@@ -21,7 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	expectedDataSize := 1000000
+	expectedDataSize := 5000
 	tmp := make([]byte, expectedDataSize)
 	ack := []byte {'1'}
 
