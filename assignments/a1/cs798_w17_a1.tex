@@ -73,9 +73,10 @@ Using 100 bytes as the transfer payload over 100 RPC calls, the average request/
 The first round-trip is approximately 4-5 times higher than the overall average, for 100 RPC calls.
 
 \section{Overhead compared to barebones UDP}
-
+Using 100 bytes as the transfer payload over 100 UDP packet transfers, the average latency was 16 microseconds. 
+The overhead for gRPC is 250 microseconds for this payload, per transfer/RPC call.
 
 \section{Throughput between 2 machines}
-\todo{experiments pending}
+\todo{experiments + implementation pending}
 
 \end{document}

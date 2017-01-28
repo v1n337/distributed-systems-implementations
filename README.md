@@ -3,6 +3,7 @@
 ## Reading Questions
 * [RPC - Execution Semantics](https://github.com/v1n337/distributed-systems-implementations/blob/master/reading-questions/q1.md)
 * [2PC - Blocking Protocol](https://github.com/v1n337/distributed-systems-implementations/blob/master/reading-questions/q2.md)
+* [Web Service Architectures](https://github.com/v1n337/distributed-systems-implementations/blob/master/questions/q4.md)
 
 ## Assignments
 
