@@ -21,7 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	expectedDataSize := 1
+	expectedDataSize := 1000000
 	tmp := make([]byte, expectedDataSize)
 	ack := []byte {'1'}
 
@@ -31,8 +31,6 @@ func main() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		fmt.Println(tmp)
 
 		if n == expectedDataSize {
 			conn.Write(ack)
