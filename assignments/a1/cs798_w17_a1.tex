@@ -1,0 +1,79 @@
+\documentclass[a4paper]{article}
+
+%% Language and font encodings
+% \usepackage[english]{babel}
+% \usepackage[T1]{fontenc}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{graphicx}
+
+\title{CS798 - Winter 2017 - Assignment 1}
+\author{Vineet John (v2john@uwaterloo.ca)}
+\date{}
+
+
+\begin{document}
+\maketitle
+
+% \renewcommand\thesubsection{\arabic{subsection}}
+
+\part{Raw Communication}
+
+\section{TCP - Sending 1 byte and receiving an ack}
+\begin{itemize}
+	\item For the local system, the round trip time is 52 microseconds
+	\item For remote systems, the round trip time is 688 microseconds
+\end{itemize}
+
+\section{TCP - Sending large amounts of data}
+\begin{itemize}
+	\item For the local system, the throughput is 126 MBps
+	\item For remote systems, the throughput is 1.36 MBps
+\end{itemize}
+
+
+\section{TCP - Overhead of connection establishment}
+1000 bytes transferred
+\begin{itemize}
+	\item For a single byte transfer per connection, the latency is 736052 microseconds.
+	\item For batched byte transfter (10 per batch), the latency is 109027 microseconds.
+\end{itemize}
+
+The overhead per extra connection attempt is 670 microseconds.
+
+\section{UDP - Packet Loss} \label{udp_packet_loss}
+\begin{itemize}
+	\item For the local system, raw UDP starts dropping packets at 6723152 bytes
+	\item For remote systems, raw UDP starts dropping packets at 32474296 bytes
+\end{itemize}
+
+\newpage
+
+\part{Reliable UDP}
+
+\section{Throughput of reliable UDP implementation}
+For 5GB of data on the same machine:
+\begin{itemize}
+	\item If sending in 50kb chunks, the throughput is 1843 MBps
+	\item If sending in 5kb chunks, the throughput is 296 MBps.
+\end{itemize}
+
+\section{Bandwidth optimization}
+From the above experiment, the bandwidth can be optimized by making the packet size for each transfer as close to the threshold identified in Q\ref{udp_packet_loss}.
+
+\newpage
+
+\part{Google RPC}
+
+\section{Latency of request/response}
+
+\section{Round trip time improvement}
+
+\section{Overhead compared to barebones UDP}
+
+\section{Throughput between 2 machines}
+
+\end{document}
