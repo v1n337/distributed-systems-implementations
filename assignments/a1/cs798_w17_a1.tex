@@ -1,14 +1,12 @@
 \documentclass[a4paper]{article}
 
-%% Language and font encodings
-% \usepackage[english]{babel}
-% \usepackage[T1]{fontenc}
-
 %% Sets page size and margins
 \usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{graphicx}
+\usepackage{todonotes}
+
 
 \title{CS798 - Winter 2017 - Assignment 1}
 \author{Vineet John (v2john@uwaterloo.ca)}
@@ -18,7 +16,7 @@
 \begin{document}
 \maketitle
 
-% \renewcommand\thesubsection{\arabic{subsection}}
+\listoftodos
 
 \part{Raw Communication}
 
@@ -50,8 +48,6 @@ The overhead per extra connection attempt is 670 microseconds.
 	\item For remote systems, raw UDP starts dropping packets at 32474296 bytes
 \end{itemize}
 
-\newpage
-
 \part{Reliable UDP}
 
 \section{Throughput of reliable UDP implementation}
@@ -61,19 +57,25 @@ For 5GB of data on the same machine:
 	\item If sending in 5kb chunks, the throughput is 296 MBps.
 \end{itemize}
 
+For 5GB of data on the different machines:
+\todo{experiments pending}
+
+
 \section{Bandwidth optimization}
 From the above experiment, the bandwidth can be optimized by making the packet size for each transfer as close to the threshold identified in Q\ref{udp_packet_loss}.
-
-\newpage
 
 \part{Google RPC}
 
 \section{Latency of request/response}
+Using 100 bytes as the transfer payload over 100 RPC calls, the average request/response time was 256 microseconds.
 
 \section{Round trip time improvement}
+The first round-trip is approximately 4-5 times higher than the overall average, for 100 RPC calls.
 
 \section{Overhead compared to barebones UDP}
 
+
 \section{Throughput between 2 machines}
+\todo{experiments pending}
 
 \end{document}

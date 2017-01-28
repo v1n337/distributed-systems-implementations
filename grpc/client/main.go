@@ -2,35 +2,52 @@ package main
 
 import (
 	"log"
-	"os"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	pb "google.golang.org/grpc/examples/helloworld/helloworld"
+	pb "cs798/goserver"
 )
 
 const (
-	address     = "localhost:50051"
-	defaultName = "world"
+	address = "localhost:50051"
 )
 
 func main() {
-	// Set up a connection to the server.
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer conn.Close()
-	c := pb.NewGreeterClient(conn)
 
-	// Contact the server and print out its response.
-	name := defaultName
-	if len(os.Args) > 1 {
-		name = os.Args[1]
+	defer conn.Close()
+	c := pb.NewTransferrerClient(conn)
+
+	dataSize := 100
+	data := make([]byte, dataSize)
+	i := 0
+	for i < dataSize {
+		data[i] = 1
+		i += 1
 	}
-	r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
-	if err != nil {
-		log.Fatalf("could not greet: %v", err)
+
+	numTests := 100
+	totalTime := 0
+	i = numTests
+
+	for i > 0 {
+		start := time.Now()
+		_, err = c.SendData(context.Background(), &pb.DataRequest{Data: data})
+		if err != nil {
+			log.Fatalf("could not greet: %v", err)
+		}
+
+		elapsed := time.Since(start).Nanoseconds()
+		log.Println("Time elapsed (nanoseconds): ", elapsed)
+
+		totalTime += int(elapsed)
+		i--
 	}
-	log.Printf("Greeting: %s", r.Message)
+
+	log.Println("Average response time (nanoseconds): ", totalTime/numTests)
+
 }

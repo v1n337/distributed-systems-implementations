@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package goserver;
+
+service Transferrer {
+  rpc SendData (DataRequest) returns (Empty) {}
+}
+
+// The request message
+message DataRequest {
+  bytes data = 1;
+}
+
+// The response message
+message Empty {}
