@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+service StreamingService {
+  rpc ReceiveDataChunks(stream DataChunk) returns (Empty) {}
+}
+
+message DataChunk {
+  bytes data = 1;
+}
+
+message Empty {}

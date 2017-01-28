@@ -38,7 +38,7 @@ func main() {
 		start := time.Now()
 		_, err = c.SendData(context.Background(), &pb.DataRequest{Data: data})
 		if err != nil {
-			log.Fatalf("could not greet: %v", err)
+			log.Fatalf("could not send data: %v", err)
 		}
 
 		elapsed := time.Since(start).Nanoseconds()
