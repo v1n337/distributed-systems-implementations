@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	// "time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -22,6 +21,7 @@ func main() {
 	defer conn.Close()
 	c := pb.NewStreamingServiceClient(conn)
 
+	packetsToSend := 100
 	dataSize := 100
 	data := make([]byte, dataSize)
 	i := 0
@@ -31,7 +31,11 @@ func main() {
 	}
 
 	var dataChunks []*pb.DataChunk
-	dataChunks = append(dataChunks, &pb.DataChunk{Data: data})
+	i = packetsToSend
+	for i > 0 {
+		dataChunks = append(dataChunks, &pb.DataChunk{Data: data})	
+		i--	
+	}
 
 	stream, err := c.ReceiveDataChunks(context.Background())
 	if err != nil {
@@ -47,11 +51,4 @@ func main() {
 	if err != nil {
 		log.Fatalf("%v.CloseAndRecv() got error %v, want %v", stream, err, nil)
 	}
-
-	// _, err = c.SendData(context.Background(), &pb.DataRequest{Data: data})
-	// if err != nil {
-	// 	log.Fatalf("could not send data: %v", err)
-	// }
-
-	// log.Println("Average response time (nanoseconds): ", totalTime/numTests)
 }
