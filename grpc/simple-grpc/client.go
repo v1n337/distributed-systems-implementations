@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	address = "localhost:50051"
+	address = "129.97.173.70:50051"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 	defer conn.Close()
 	c := pb.NewTransferrerClient(conn)
 
-	dataSize := 100
+	dataSize := 1000000
 	data := make([]byte, dataSize)
 	i := 0
 	for i < dataSize {
@@ -48,6 +48,7 @@ func main() {
 		i--
 	}
 
-	log.Println("Average response time (nanoseconds): ", totalTime/numTests)
-
+	latency := totalTime/numTests
+	log.Println("Average latency (nanoseconds): ", totalTime/numTests)
+	log.Println("Average throughput (MBps): ", (dataSize * 1000)/latency)
 }
