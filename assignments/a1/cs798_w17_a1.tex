@@ -56,13 +56,14 @@ For 5GB of data on the same machine:
 	\item If sending in 50kb chunks, the throughput is 1843 MBps
 	\item If sending in 5kb chunks, the throughput is 296 MBps.
 \end{itemize}
-
-For 5GB of data on the different machines:
-\todo{experiments pending}
-
+For 5GB of data on different machines:
+\begin{itemize}
+	\item If sending in 50kb chunks, the throughput is 10.75 MBps
+	\item If sending in 5kb chunks, the throughput is 6.29 MBps.
+\end{itemize}
 
 \section{Bandwidth optimization}
-From the above experiment, the bandwidth can be optimized by making the packet size for each transfer as close to the threshold identified in Q\ref{udp_packet_loss}.
+From the above experiment, we can conclude that the bandwidth can be optimized by making the packet size for each transfer as close to the threshold identified in Q\ref{udp_packet_loss}.
 
 \part{Google RPC}
 
