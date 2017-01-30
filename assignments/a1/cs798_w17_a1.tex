@@ -5,7 +5,7 @@
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{graphicx}
-\usepackage{todonotes}
+% \usepackage{todonotes}
 
 
 \title{CS798 - Winter 2017 - Assignment 1}
@@ -16,70 +16,132 @@
 \begin{document}
 \maketitle
 
-\listoftodos
+% \listoftodos
 
 \part{Raw Communication}
 
 \section{TCP - Sending 1 byte and receiving an ack}
-\begin{itemize}
-	\item For the local system, the round trip time is 52 microseconds
-	\item For remote systems, the round trip time is 688 microseconds
-\end{itemize}
+\begin{center}
+	\begin{tabular}{ |c|c| } 
+		\hline
+		& Round-Trip Time (Microseconds) \\ 
+		\hline
+		\hline
+		Local & 52 \\ 
+		\hline
+		Remote & 688 \\ 
+		\hline
+	\end{tabular}
+\end{center}
+
 
 \section{TCP - Sending large amounts of data}
-\begin{itemize}
-	\item For the local system, the throughput is 126 MBps
-	\item For remote systems, the throughput is 1.36 MBps
-\end{itemize}
-
+\begin{center}
+	\begin{tabular}{ |c|c| } 
+		\hline
+		& Throughput (MBps) \\ 
+		\hline
+		\hline
+		Local & 126 \\ 
+		\hline
+		Remote & 1.36 \\ 
+		\hline
+	\end{tabular}
+\end{center}
 
 \section{TCP - Overhead of connection establishment}
-1000 bytes transferred
-\begin{itemize}
-	\item For a single byte transfer per connection, the latency is 736052 microseconds.
-	\item For batched byte transfter (10 per batch), the latency is 109027 microseconds.
-\end{itemize}
-
-The overhead per extra connection attempt is 670 microseconds.
+Experiment setup: 1KB transferred
+\begin{center}
+	\begin{tabular}{ |c|c| } 
+		\hline
+		& Latency (Microseconds) \\ 
+		\hline
+		\hline
+		Connection-per-byte & 736052 \\ 
+		\hline
+		Batched & 109027 \\ 
+		\hline
+	\end{tabular}
+\end{center}
+The overhead per extra connection attempt is \textbf{670 microseconds}.
 
 \section{UDP - Packet Loss} \label{udp_packet_loss}
-\begin{itemize}
-	\item For the local system, raw UDP starts dropping packets at 6723152 bytes
-	\item For remote systems, raw UDP starts dropping packets at 32474296 bytes
-\end{itemize}
+\begin{center}
+	\begin{tabular}{ |c|c| } 
+		\hline
+		& Data transferred before loss (bytes) \\ 
+		\hline
+		\hline
+		Local & 32474296 \\ 
+		\hline
+		Remote & 6723152 \\ 
+		\hline
+	\end{tabular}
+\end{center}
 
 \part{Reliable UDP}
 
-\section{Throughput of reliable UDP implementation}
-For 5GB of data on the same machine:
-\begin{itemize}
-	\item If sending in 50kb chunks, the throughput is 1843 MBps
-	\item If sending in 5kb chunks, the throughput is 296 MBps.
-\end{itemize}
-For 5GB of data on different machines:
-\begin{itemize}
-	\item If sending in 50kb chunks, the throughput is 10.75 MBps
-	\item If sending in 5kb chunks, the throughput is 6.29 MBps.
-\end{itemize}
+\section{Reliable UDP - Throughput} \label{reliable_udp_throughput}
+Experiment setup: 5GB transferred
+\begin{center}
+	\begin{tabular}{ |c|c|c| } 
+		\hline
+		& Packet Size (KB) & Throughput (MBps) \\ 
+		\hline
+		\hline
+		Local & 5 & 1843 \\ 
+		\hline
+		Local & 50 & 296 \\ 
+		\hline
+		Remote & 5 & 10.75 \\ 
+		\hline
+		Remote & 50 & 6.29 \\ 
+		\hline
+	\end{tabular}
+\end{center}
 
-\section{Bandwidth optimization}
-From the above experiment, we can conclude that the bandwidth can be optimized by making the packet size for each transfer as close to the threshold identified in Q\ref{udp_packet_loss}.
+\section{Reliable UDP - Bandwidth optimization}
+From the experimental results shown in Q\ref{reliable_udp_throughput} we can conclude that the bandwidth can be optimized by making the packet size for each transfer as close to the threshold identified in Q\ref{udp_packet_loss}, as packets with higher sizes limit the connection overhead per transfer.
 
 \part{Google RPC}
 
-\section{Latency of request/response}
-Using 100 bytes as the transfer payload over 100 RPC calls, the average request/response time was 256 microseconds.
+\section{GRPC - Latency of request/response}
+Experiment setup: 100 bytes as the transfer payload over 100 RPC calls. Average round-trip time measured.
+The average request/response time was \textbf{256 microseconds}.
 
-\section{Round trip time improvement}
-The first round-trip is approximately 4-5 times higher than the overall average, for 100 RPC calls.
+\section{GRPC - Round trip time improvement}
+Experiment setup: 100 bytes as the transfer payload over 100 RPC calls. Average round-trip time measured.
+The first round-trip is approximately \textbf{4-5 times higher} than the overall average.
 
-\section{Overhead compared to barebones UDP}
-Using 100 bytes as the transfer payload over 100 UDP packet transfers, the average latency was 16 microseconds. 
-The overhead for gRPC is 240 microseconds for this payload, per RPC call.
+\section{GRPC - Overhead compared to barebones UDP}
+Experiment setup: 100 bytes as the transfer payload over 100 RPC calls/UDP transfers
+\begin{center}
+	\begin{tabular}{ |c|c| } 
+		\hline
+		& Latency (Microseconds) \\ 
+		\hline
+		\hline
+		UDP & 16 \\ 
+		\hline
+		GRPC & 256 \\ 
+		\hline
+	\end{tabular}
+\end{center}
+The overhead for GRPC is \textbf{240 microseconds} for this payload, per RPC call.
 
-\section{Throughput between 2 machines}
-Using 100MB as transfer data,
-Using simple GRPC, the throughput is 11MBps
-Using client-streaming GRPC, the throughput is 11.74MBps
+\section{GRPC - Throughput between remote machines}
+Experiment setup: 100MB data to be transferred
+\begin{center}
+	\begin{tabular}{ |c|c| } 
+		\hline
+		& Throughput (MBps) \\ 
+		\hline
+		\hline
+		Simple GRPC & 11.00 \\ 
+		\hline
+		Client-streaming GRPC & 11.74 \\ 
+		\hline
+	\end{tabular}
+\end{center}
 
 \end{document}
