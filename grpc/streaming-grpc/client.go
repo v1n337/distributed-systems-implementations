@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	address = "localhost:50051"
+	address = "129.97.173.70:50051"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 	c := pb.NewStreamingServiceClient(conn)
 
 	packetsToSend := 100
-	dataSize := 100
+	dataSize := 1000000
 	data := make([]byte, dataSize)
 	i := 0
 	for i < dataSize {
