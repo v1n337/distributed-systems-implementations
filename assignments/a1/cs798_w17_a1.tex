@@ -18,9 +18,9 @@
 
 % \listoftodos
 
-\part{Raw Communication}
+\part*{1. Raw Communication}
 
-\section{TCP - Sending 1 byte and receiving an ack}
+\section*{Q1. TCP - Sending 1 byte and receiving an ack}
 \begin{center}
 	\begin{tabular}{ |c|c| } 
 		\hline
@@ -34,8 +34,7 @@
 	\end{tabular}
 \end{center}
 
-
-\section{TCP - Sending large amounts of data}
+\section*{Q2. TCP - Sending large amounts of data}
 \begin{center}
 	\begin{tabular}{ |c|c| } 
 		\hline
@@ -49,7 +48,7 @@
 	\end{tabular}
 \end{center}
 
-\section{TCP - Overhead of connection establishment}
+\section*{Q3. TCP - Overhead of connection establishment}
 Experiment setup: 1KB transferred
 \begin{center}
 	\begin{tabular}{ |c|c| } 
@@ -59,13 +58,13 @@ Experiment setup: 1KB transferred
 		\hline
 		Connection-per-byte & 736052 \\ 
 		\hline
-		Batched & 109027 \\ 
+		Batched (10B per connection) & 109027 \\ 
 		\hline
 	\end{tabular}
 \end{center}
 The overhead per extra connection attempt is \textbf{670 microseconds}.
 
-\section{UDP - Packet Loss} \label{udp_packet_loss}
+\section*{Q4. UDP - Packet Loss} \label{udp_packet_loss}
 \begin{center}
 	\begin{tabular}{ |c|c| } 
 		\hline
@@ -79,9 +78,11 @@ The overhead per extra connection attempt is \textbf{670 microseconds}.
 	\end{tabular}
 \end{center}
 
-\part{Reliable UDP}
+\newpage
 
-\section{Reliable UDP - Throughput} \label{reliable_udp_throughput}
+\part*{2. Reliable UDP}
+
+\section*{Q5. Reliable UDP - Throughput} \label{reliable_udp_throughput}
 Experiment setup: 5GB transferred
 \begin{center}
 	\begin{tabular}{ |c|c|c| } 
@@ -89,31 +90,33 @@ Experiment setup: 5GB transferred
 		& Packet Size (KB) & Throughput (MBps) \\ 
 		\hline
 		\hline
-		Local & 5 & 1843 \\ 
+		Local & 50 & 1843 \\ 
 		\hline
-		Local & 50 & 296 \\ 
+		Local & 5 & 296 \\ 
 		\hline
-		Remote & 5 & 10.75 \\ 
+		Remote & 50 & 10.75 \\ 
 		\hline
-		Remote & 50 & 6.29 \\ 
+		Remote & 5 & 6.29 \\ 
 		\hline
 	\end{tabular}
 \end{center}
 
-\section{Reliable UDP - Bandwidth optimization}
+\section*{Q6. Reliable UDP - Bandwidth optimization}
 From the experimental results shown in Q\ref{reliable_udp_throughput} we can conclude that the bandwidth can be optimized by making the packet size for each transfer as close to the threshold identified in Q\ref{udp_packet_loss}, as packets with higher sizes limit the connection overhead per transfer.
 
-\part{Google RPC}
+\newpage
 
-\section{GRPC - Latency of request/response}
-Experiment setup: 100 bytes as the transfer payload over 100 RPC calls. Average round-trip time measured.
+\part*{3. Google RPC}
+
+\section*{Q7. GRPC - Latency of request/response}
+Experiment setup: 100 bytes as the transfer payload over 100 RPC calls. Average round-trip time measured.\\
 The average request/response time was \textbf{256 microseconds}.
 
-\section{GRPC - Round trip time improvement}
-Experiment setup: 100 bytes as the transfer payload over 100 RPC calls. Average round-trip time measured.
+\section*{Q8. GRPC - Round trip time improvement}
+Experiment setup: 100 bytes as the transfer payload over 100 RPC calls. Average round-trip time measured.\\
 The first round-trip is approximately \textbf{4-5 times higher} than the overall average.
 
-\section{GRPC - Overhead compared to barebones UDP}
+\section*{Q9. GRPC - Overhead compared to barebones UDP}
 Experiment setup: 100 bytes as the transfer payload over 100 RPC calls/UDP transfers
 \begin{center}
 	\begin{tabular}{ |c|c| } 
@@ -129,7 +132,7 @@ Experiment setup: 100 bytes as the transfer payload over 100 RPC calls/UDP trans
 \end{center}
 The overhead for GRPC is \textbf{240 microseconds} for this payload, per RPC call.
 
-\section{GRPC - Throughput between remote machines}
+\section*{Q10. GRPC - Throughput between remote machines}
 Experiment setup: 100MB data to be transferred
 \begin{center}
 	\begin{tabular}{ |c|c| } 
