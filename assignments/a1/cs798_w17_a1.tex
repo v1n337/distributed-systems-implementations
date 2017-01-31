@@ -5,8 +5,6 @@
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{graphicx}
-% \usepackage{todonotes}
-
 
 \title{CS798 - Winter 2017 - Assignment 1}
 \author{Vineet John (v2john@uwaterloo.ca)}
@@ -15,8 +13,6 @@
 
 \begin{document}
 \maketitle
-
-% \listoftodos
 
 \part*{1. Raw Communication}
 
@@ -102,7 +98,7 @@ Experiment setup: 5GB transferred
 \end{center}
 
 \section*{Q6. Reliable UDP - Bandwidth optimization}
-From the experimental results shown in Q\ref{reliable_udp_throughput} we can conclude that the bandwidth can be optimized by making the packet size for each transfer as close to the threshold identified in Q\ref{udp_packet_loss}, as packets with higher sizes limit the connection overhead per transfer.
+From the experimental results shown in Q5 we can conclude that the bandwidth can be optimized by making eachu packet size as high as possible, as packets with higher sizes limit the connection overhead per transfer.
 
 \newpage
 
