@@ -1,9 +1,10 @@
-#include <iostream>    // declarations for I/O
+#include <iostream>
 
-int main()            // main function main()
+int main(int argc, char* argv[])
 {
-    /* print `Hello, World!' on standard output channel std::cout
-     * followed by an endline (std::endl)
-     */
-    std::cout << "Hello, World!" << std::endl;
+	std::string sshfscmd ("sshfs ");
+	std::string command = sshfscmd + argv[1] + " " + argv[2];
+	std::cout << command << std::endl;
+	const char * c = command.c_str();
+	system(c);
 }
