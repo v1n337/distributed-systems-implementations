@@ -31,10 +31,6 @@
 *.out
 *.app
 
-# Go directories
-src/
-bin/
-
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
@@ -256,3 +252,14 @@ TSWLatexianTemp*
 
 # expex forward references with \gathertags
 *-tags.tex
+
+
+# C++  files 
+
+# Ignore the build and lib dirs
+build
+lib/*
+
+# Ignore any executables
+bin/
+
