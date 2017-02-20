@@ -1,0 +1,104 @@
+\documentclass[a4paper]{article}
+
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1cm]{geometry}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[parfill]{parskip}
+\graphicspath {{images/}}
+
+\begin{document}
+
+\title{CS798 (Winter 2017) - Reading Questions}
+\author{Vineet John (v2john@uwaterloo.ca)}
+\date{}        
+\maketitle
+
+\section{Q1} % (fold)
+\label{sec:q1}
+    
+    \textbf{RPC aims to make remote procedure calls look like local calls. When does that illusion fail (i.e., in what case remote calls are different from local calls)? How does the paper address this case? If you are writing a program using RPCs, how would you handle this case? Hint: "precisely once" and "at most once" semantics.}
+
+    The illusion of making invoking remote procedures fails in the event of machine and communication failures of the callee. Despite the caller environment still being fully operational, it would seem from the point of view of an end-user that the system is failing, because at least one process on the caller system will be suspended indefinitely until a response is received, or receive an exception. If a callee fails before it was able to execute the procedure or if it fails while acknowledging the procedure completion of the procedure, the caller receives the same feedback: that the callee is unreachable or has failed for some reason.
+
+    The implementation described in the paper guarantees that the procedure is executed 'precisely once', if the call is returned to the user. The RPC mechanism in the paper holds the caller machine accountable to keep retrying requests that were presumed to have failed. This presumption is based on the fact that the caller hasn't yet received a result packet containing the call identifier it used when the request was originally sent. The 'precisely once' execution of the described RPC mechanism is achieved by the callee system keeping track of historical requests. This allows the callee to discard the requests whose call identifier has already been logged as completed and the result sent back to the caller. Such occurrences might take place due to re-transmissions by the caller. An exception to this scenario is if the procedure being invoked is idempotent, for which the callee machine would not need to keep track of whether a procedure was executed as part of a previous request already.
+
+    If I was writing a program using RPCs, the logic to handle to the execution count semantics would need to be present at the callee system i.e. the exported of the RPC interface. I would use a hashmap/data-dictionary to maintain a mapping of the activities (machine ID + process ID) to the current sequence number associated with it. For each procedure call, the callee code would first look up the dictionary - ​[​O(1) time complexity​]​ - to check if the sequence number is lesser than the current sequence number associated with the machine ID + process ID for that specific caller. If the sequence number received is lesser than or equal to the sequence number in the dictionary, the request can be discarded as duplicate. Else, the procedure call is processed after updating the dictionary to contain the latest sequence number.
+
+    The semantics of RPC re-transmissions would depend on the type of application it's being used for. For instance 'precisely once' would make a lot of sense to have in a financial transaction environment, where the application layer requires strong guarantees that an RPC is executed only once. 
+    On the other hand, an 'at most once' sem​​antic might make sense to have for a scenario like tweet likes, where missing out on a single unit of the metric doesn't cause a huge impact. For this the caller application could merely choose to invoke the RPC, but never wait for an acknowledgement before processing.
+
+
+% section q1 (end)
+
+\section{Q2} % (fold)
+\label{sec:q2}
+
+    \textbf{Detail a scenario under which 2PC blocks? Present a timeline of events and explain why the protocol can not make progress?}
+
+    A scenario where 2PC blocks is described below, as a timeline of events:
+    \begin{itemize}
+        \item
+        Co-ordinator sends a PREPARE message to all cohorts
+        \item
+        All of the cohorts respond with a COMMIT-VOTE
+        \item
+        In the meantime, the co-ordinator encounters a hardware failure and goes down before issuing a COMMIT message to the cohort
+        \item
+        Now that the co-ordinator in inaccessible and the fact that 2PC is a blocking protocol, the cohorts might never receive a final outcome for this transaction.
+        \item
+        Until the co-ordinator comes back online and sends an outcome, this transaction will remain unresolved.
+        \item
+        The protocol can't make progress because it is relying on the coordinator to determine the final outcome of the transaction, based on the responses of the other participants in the distributed commit.
+    \end{itemize}
+
+% section q2 (end)
+
+\section{Q3} % (fold)
+\label{sec:q3}
+    Survey question submitted online
+
+% section q3 (end)
+
+\section{Q4} % (fold)
+\label{sec:q4}
+
+    \textbf{Pick one figure from the comparison paper that you think is most interesting. Describe what you think is most interesting about it, in a sentence or three.}
+
+    I found Figure 3, labelled 'Tuning Knot – blocking sendfile' to be the most interesting.
+
+    My intuition before reading the paper was that non-blocking system calls would always have better performance benchmarks as compared to the blocking call counterparts. 
+    However, this is not the case for the Knot, for which the architecture is based on 'single thread per connection'. 
+    The bandwidth for the blocking implementation exceeds that of the non-blocking implementation of sendfile, as shown in correlation with Figure 2.
+
+    I suppose the reason for this could be the existence of queued operations, as would be in a non-blocking sendfile call, in which a single file might require the invocation of the sendfile method several times. 
+    In the blocking implementation of the call, however, an entire file can be written using a single invocation of the call.
+
+% section q4 (end)
+
+\section{Q5} % (fold)
+\label{sec:q5}
+
+    \textbf{NFS caching mechanism can lead to some user-observable inconsistency. Can you describe an example where a user sees the system do something that is odd or undesirable?}
+
+    A user-observable inconsistency might occur in a scenario involving multiple clients writing to a single centralized NFS.
+
+    Due to NFS caching on both the client and the server side, the write operations performed by one client might not be instantaneously visible on other clients’ caches. This will lead to an obvious inconsistency between the actual data on the server and what is present on the caches of the other client, unless the cache is invalidated and fetched once again from the server.
+
+% section q5 (end)
+
+\section{Q6} % (fold)
+\label{sec:q6}
+
+    \textbf{Chord, to some degree, trades latency for high scalability. It takes O(log n) steps to find a location but scales well. What would you do differently to achieve better latency if your target deployment had up to 1000 nodes only.}
+
+    If there were only 1000 nodes in the Chord cluster, it would make sense to have a routing table that was globally replicated, with each node being fully aware of the location of data present on all the other Chord nodes. 
+
+    This would convert the $O(log^2 n)$ lookup into a $O(1)$ lookup at every node, and improve the latency of the system.
+
+
+% section q6 (end)
+
+
+\end{document}
