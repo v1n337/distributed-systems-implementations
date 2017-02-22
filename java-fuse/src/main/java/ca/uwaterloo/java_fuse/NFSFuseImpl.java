@@ -1,10 +1,8 @@
 package ca.uwaterloo.java_fuse;
 
-import ca.uwaterloo.java_fuse.proto.GetAttrResponseParams;
-import ca.uwaterloo.java_fuse.proto.NFSFuseGrpc;
-import ca.uwaterloo.java_fuse.proto.ReadDirResponseParams;
-import ca.uwaterloo.java_fuse.proto.VoidMessage;
-import jnr.posix.POSIX;
+import ca.uwaterloo.java_fuse.proto.*;
+import jnr.x86asm.ERROR_CODE;
+import ru.serce.jnrfuse.ErrorCodes;
 import ru.serce.jnrfuse.struct.FileStat;
 
 import java.io.File;
@@ -19,6 +17,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 import static java.nio.file.attribute.PosixFilePermission.*;
 
 
@@ -26,20 +25,27 @@ public class NFSFuseImpl extends NFSFuseGrpc.NFSFuseImplBase
 {
     private static final Logger log = Logger.getLogger(NFSFuseImpl.class.getName());
 
+    @Override
     public void getattr(ca.uwaterloo.java_fuse.proto.GetAttrRequestParams request,
                         io.grpc.stub.StreamObserver<ca.uwaterloo.java_fuse.proto.GetAttrResponseParams> responseObserver)
     {
+//        log.info("In GetAttr server - " + request.getPath());
+
         GetAttrResponseParams.Builder responseBuilder = GetAttrResponseParams.newBuilder();
         File file = new File(request.getPath());
         if (file.isDirectory())
         {
             responseBuilder.setMode(FileStat.S_IFDIR | 0755);
             responseBuilder.setNlink(2);
+            responseBuilder.setUid(1000);
+            responseBuilder.setGuid(1000);
         }
         else if (file.isFile())
         {
             responseBuilder.setMode(FileStat.S_IFREG | 0777);
             responseBuilder.setNlink(1);
+            responseBuilder.setUid(1000);
+            responseBuilder.setGuid(1000);
         }
 
         GetAttrResponseParams getAttrResponseParams = responseBuilder.build();
@@ -47,9 +53,12 @@ public class NFSFuseImpl extends NFSFuseGrpc.NFSFuseImplBase
         responseObserver.onCompleted();
     }
 
+    @Override
     public void readdir(ca.uwaterloo.java_fuse.proto.ReadDirRequestParams request,
                         io.grpc.stub.StreamObserver<ca.uwaterloo.java_fuse.proto.ReadDirResponseParams> responseObserver)
     {
+//        log.info("In readdir server");
+
         ReadDirResponseParams.Builder responseBuilder = ReadDirResponseParams.newBuilder();
 
         File file = new File(request.getPath());
@@ -75,6 +84,7 @@ public class NFSFuseImpl extends NFSFuseGrpc.NFSFuseImplBase
         responseObserver.onCompleted();
     }
 
+    @Override
     public void mkdir(ca.uwaterloo.java_fuse.proto.MkDirRequestParams request,
                       io.grpc.stub.StreamObserver<ca.uwaterloo.java_fuse.proto.VoidMessage> responseObserver)
     {
@@ -100,6 +110,7 @@ public class NFSFuseImpl extends NFSFuseGrpc.NFSFuseImplBase
         responseObserver.onCompleted();
     }
 
+    @Override
     public void create(ca.uwaterloo.java_fuse.proto.CreateRequestParams request,
                        io.grpc.stub.StreamObserver<ca.uwaterloo.java_fuse.proto.VoidMessage> responseObserver)
     {
@@ -123,6 +134,24 @@ public class NFSFuseImpl extends NFSFuseGrpc.NFSFuseImplBase
             {
                 e.printStackTrace();
             }
+        }
+
+        responseObserver.onNext(VoidMessage.getDefaultInstance());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void rmdir(ca.uwaterloo.java_fuse.proto.RmDirRequestParams request,
+                      io.grpc.stub.StreamObserver<ca.uwaterloo.java_fuse.proto.VoidMessage> responseObserver)
+    {
+        log.info("In rmdir - server");
+        try
+        {
+            Files.delete(Paths.get(request.getPath()));
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
 
         responseObserver.onNext(VoidMessage.getDefaultInstance());

@@ -14,11 +14,8 @@ import ru.serce.jnrfuse.NotImplemented;
 import ru.serce.jnrfuse.struct.FileStat;
 import ru.serce.jnrfuse.struct.FuseFileInfo;
 
-import java.io.File;
-import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -38,7 +35,7 @@ public class FuseNFSClient extends FuseStubFS
         try
         {
             log.info("Mounting filesystem");
-            fuseStub.mount(Paths.get("/tmp/mnt"), true, true);
+            fuseStub.mount(Paths.get("/tmp/mnt"), true, false);
         }
         finally
         {
@@ -60,6 +57,8 @@ public class FuseNFSClient extends FuseStubFS
 
         stat.st_mode.set(getAttrResponseParams.getMode());
         stat.st_nlink.set(getAttrResponseParams.getNlink());
+        stat.st_uid.set(getAttrResponseParams.getUid());
+        stat.st_gid.set(getAttrResponseParams.getGuid());
 
         return 0;
     }
@@ -107,7 +106,7 @@ public class FuseNFSClient extends FuseStubFS
     {
         log.info("In mknod - client");
 
-        if (path == null)
+        if (path == null || Files.exists(Paths.get(path)))
         {
             return -ErrorCodes.EEXIST();
         }
@@ -126,27 +125,23 @@ public class FuseNFSClient extends FuseStubFS
     }
 
     @Override
-    public int create(String path, @mode_t long mode, FuseFileInfo fi)
+    public int rmdir(String path)
     {
-
-        log.info("In Create - client");
-
-        if (path == null)
+        if (path == null || !Files.exists(Paths.get(path)))
         {
             return -ErrorCodes.EEXIST();
         }
         else
         {
-            CreateRequestParams createRequestParams =
-                CreateRequestParams
+            RmDirRequestParams rmDirRequestParams =
+                RmDirRequestParams
                     .newBuilder()
                     .setPath(path)
                     .build();
 
-            grpcStub.create(createRequestParams);
+            grpcStub.rmdir(rmDirRequestParams);
         }
 
         return 0;
     }
-
 }

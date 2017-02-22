@@ -14,6 +14,7 @@ service NFSFuse
     rpc readdir (ReadDirRequestParams) returns (ReadDirResponseParams) {}
     rpc mkdir (MkDirRequestParams) returns (VoidMessage) {}
     rpc create (CreateRequestParams) returns (VoidMessage) {}
+    rpc rmdir (RmDirRequestParams) returns (VoidMessage) {}
 }
 
 message VoidMessage
@@ -29,6 +30,8 @@ message GetAttrResponseParams
 {
     int32 mode = 1;
     int32 nlink = 2;
+    int32 uid = 3;
+    int32 guid = 4;
 }
 
 message ReadDirRequestParams
@@ -47,6 +50,11 @@ message MkDirRequestParams
 }
 
 message CreateRequestParams
+{
+    string path = 1;
+}
+
+message RmDirRequestParams
 {
     string path = 1;
 }
