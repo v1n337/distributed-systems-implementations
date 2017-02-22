@@ -1,5 +1,7 @@
 # Temp files
 *.swp
+.idea/
+gradle/
 
 # Compiled Object files
 *.slo

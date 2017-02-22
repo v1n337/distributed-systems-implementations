@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "ca.uwaterloo.java_fuse.proto";
+option java_outer_classname = "NFSFuseProto";
+option objc_class_prefix = "NFP";
+
+package nfs_fuse;
+
+// Interface exported by the server.
+service NFSFuse
+{
+    rpc getattr (GetAttrRequestParams) returns (GetAttrResponseParams) {}
+    rpc readdir (ReadDirRequestParams) returns (ReadDirResponseParams) {}
+    rpc mkdir (MkDirRequestParams) returns (VoidMessage) {}
+    rpc create (CreateRequestParams) returns (VoidMessage) {}
+}
+
+message VoidMessage
+{
+}
+
+message GetAttrRequestParams
+{
+    string path = 1;
+}
+
+message GetAttrResponseParams
+{
+    int32 mode = 1;
+    int32 nlink = 2;
+}
+
+message ReadDirRequestParams
+{
+    string path = 1;
+}
+
+message ReadDirResponseParams
+{
+    repeated string filenames = 1;
+}
+
+message MkDirRequestParams
+{
+    string path = 1;
+}
+
+message CreateRequestParams
+{
+    string path = 1;
+}
+

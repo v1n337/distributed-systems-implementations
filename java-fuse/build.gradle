@@ -1,0 +1,104 @@
+apply plugin: 'java'
+apply plugin: 'com.google.protobuf'
+apply plugin: 'application'
+
+applicationDefaultJvmArgs = ["-Xmx4g"]
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.0'
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    jcenter()
+}
+
+dependencies {
+    compile 'org.apache.logging.log4j:log4j-core:2.7'
+    compile 'org.apache.logging.log4j:log4j-api:2.7'
+    compile 'args4j:args4j:2.33'
+    compile 'org.projectlombok:lombok:1.16.12'
+    compile 'org.jetbrains:annotations:15.0'
+    compile 'junit:junit:4.12'
+    compile 'io.grpc:grpc-netty:1.1.2'
+    compile 'io.grpc:grpc-protobuf:1.1.2'
+    compile 'io.grpc:grpc-stub:1.1.2'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.8.6'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.6'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-protobuf:2.8.6'
+    compile 'com.github.serceman:jnr-fuse:0.3.1'
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.1.0-build2'
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.1.2"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {
+                // To generate deprecated interfaces and static bindService method,
+                // turn the enable_deprecated option to true below:
+                option 'enable_deprecated=false'
+            }
+        }
+    }
+}
+
+// Inform IntelliJ projects about the generated code.
+apply plugin: 'idea'
+
+idea {
+    module {
+        // Not using generatedSourceDirs because of
+        // https://discuss.gradle.org/t/support-for-intellij-2016/15294/8
+        sourceDirs += file("${projectDir}/build/generated/source/proto/main/java");
+        sourceDirs += file("${projectDir}/build/generated/source/proto/main/grpc");
+    }
+}
+
+mainClassName = "ca.uwaterloo.java_fuse.FuseNFS"
+
+task createClientScript(type: CreateStartScripts) {
+    mainClassName = "ca.uwaterloo.java_fuse.FuseNFSClient"
+    applicationName = 'fuse-nfs-client'
+    outputDir = new File(project.buildDir, 'bin')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task createServerScript(type: CreateStartScripts) {
+    mainClassName = "ca.uwaterloo.java_fuse.FuseNFSServer"
+    applicationName = 'fuse-nfs-server'
+    outputDir = new File(project.buildDir, 'bin')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+
+task copyDepLib(type: Copy) {
+    into "build/lib"
+    from configurations.runtime
+}
+
+task copyAppLib(type: Copy) {
+    from 'build/libs'
+    into 'build/lib'
+}
+
+build.dependsOn([copyDepLib, copyAppLib])
+
+applicationDistribution.into('bin') {
+    from(createClientScript)
+    from(createServerScript)
+    fileMode = 0755
+}
