@@ -10,7 +10,6 @@ import jnr.ffi.types.off_t;
 import ru.serce.jnrfuse.ErrorCodes;
 import ru.serce.jnrfuse.FuseFillDir;
 import ru.serce.jnrfuse.FuseStubFS;
-import ru.serce.jnrfuse.NotImplemented;
 import ru.serce.jnrfuse.struct.FileStat;
 import ru.serce.jnrfuse.struct.FuseFileInfo;
 
@@ -65,6 +64,7 @@ public class FuseNFSClient extends FuseStubFS
         stat.st_nlink.set(getAttrResponseParams.getNlink());
         stat.st_uid.set(getAttrResponseParams.getUid());
         stat.st_gid.set(getAttrResponseParams.getGuid());
+        stat.st_size.set(getAttrResponseParams.getSize());
 
         return 0;
     }
@@ -87,6 +87,25 @@ public class FuseNFSClient extends FuseStubFS
                 filter.apply(buf, fileName, null, 0);
             }
         );
+
+        return 0;
+    }
+
+    @Override
+    public int open(String path, FuseFileInfo fi)
+    {
+        if (null == path)
+        {
+            return -ErrorCodes.ENOENT();
+        }
+
+        OpenRequestParams openRequestParams =
+            OpenRequestParams
+                .newBuilder()
+                .setPath(path)
+                .build();
+
+        OpenResponseParams openResponseParams = grpcStub.open(openRequestParams);
 
         return 0;
     }
@@ -157,4 +176,24 @@ public class FuseNFSClient extends FuseStubFS
 
         return 0;
     }
+
+    public int rename(String oldpath, String newpath)
+    {
+
+        if (oldpath == null || newpath == null)
+        {
+            return -ErrorCodes.EEXIST();
+        }
+
+        RenameRequestParams renameRequestParams =
+            RenameRequestParams.newBuilder()
+                .setOldPath(oldpath)
+                .setNewPath(newpath)
+                .build();
+
+        grpcStub.rename(renameRequestParams);
+
+        return 0;
+    }
+
 }

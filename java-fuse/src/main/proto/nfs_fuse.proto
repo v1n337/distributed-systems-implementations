@@ -15,6 +15,8 @@ service NFSFuse
     rpc mkdir (MkDirRequestParams) returns (VoidMessage) {}
     rpc create (CreateRequestParams) returns (VoidMessage) {}
     rpc rmdir (RmDirRequestParams) returns (VoidMessage) {}
+    rpc open (OpenRequestParams) returns (OpenResponseParams) {}
+    rpc rename (RenameRequestParams) returns (VoidMessage) {}
 }
 
 message VoidMessage
@@ -32,6 +34,7 @@ message GetAttrResponseParams
     int32 nlink = 2;
     int32 uid = 3;
     int32 guid = 4;
+    int64 size = 5;
 }
 
 message ReadDirRequestParams
@@ -59,3 +62,16 @@ message RmDirRequestParams
     string path = 1;
 }
 
+message OpenRequestParams {
+    string path = 1;
+}
+
+message OpenResponseParams {
+    int32 fileHandle = 1;
+    int32 uid = 2;
+}
+
+message RenameRequestParams {
+    string oldPath = 1;
+    string newPath = 2;
+}

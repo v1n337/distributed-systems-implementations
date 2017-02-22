@@ -1,12 +1,11 @@
 package ca.uwaterloo.java_fuse;
 
-import ca.uwaterloo.java_fuse.proto.GetAttrResponseParams;
-import ca.uwaterloo.java_fuse.proto.NFSFuseGrpc;
-import ca.uwaterloo.java_fuse.proto.ReadDirResponseParams;
-import ca.uwaterloo.java_fuse.proto.VoidMessage;
+import ca.uwaterloo.java_fuse.proto.*;
 import ru.serce.jnrfuse.struct.FileStat;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +17,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 import static java.nio.file.attribute.PosixFilePermission.*;
 
 
@@ -29,24 +29,21 @@ public class NFSFuseImpl extends NFSFuseGrpc.NFSFuseImplBase
     public void getattr(ca.uwaterloo.java_fuse.proto.GetAttrRequestParams request,
                         io.grpc.stub.StreamObserver<ca.uwaterloo.java_fuse.proto.GetAttrResponseParams> responseObserver)
     {
-//        log.info("In GetAttr server - " + request.getPath());
-
         GetAttrResponseParams.Builder responseBuilder = GetAttrResponseParams.newBuilder();
         File file = new File(request.getPath());
         if (file.isDirectory())
         {
             responseBuilder.setMode(FileStat.S_IFDIR | 0755);
             responseBuilder.setNlink(2);
-            responseBuilder.setUid(1000);
-            responseBuilder.setGuid(1000);
         }
         else if (file.isFile())
         {
             responseBuilder.setMode(FileStat.S_IFREG | 0777);
             responseBuilder.setNlink(1);
-            responseBuilder.setUid(1000);
-            responseBuilder.setGuid(1000);
         }
+        responseBuilder.setUid(1000);
+        responseBuilder.setGuid(1000);
+        responseBuilder.setSize(file.length());
 
         GetAttrResponseParams getAttrResponseParams = responseBuilder.build();
         responseObserver.onNext(getAttrResponseParams);
@@ -57,8 +54,6 @@ public class NFSFuseImpl extends NFSFuseGrpc.NFSFuseImplBase
     public void readdir(ca.uwaterloo.java_fuse.proto.ReadDirRequestParams request,
                         io.grpc.stub.StreamObserver<ca.uwaterloo.java_fuse.proto.ReadDirResponseParams> responseObserver)
     {
-//        log.info("In readdir server");
-
         ReadDirResponseParams.Builder responseBuilder = ReadDirResponseParams.newBuilder();
 
         File file = new File(request.getPath());
@@ -153,6 +148,54 @@ public class NFSFuseImpl extends NFSFuseGrpc.NFSFuseImplBase
         {
             e.printStackTrace();
         }
+
+        responseObserver.onNext(VoidMessage.getDefaultInstance());
+        responseObserver.onCompleted();
+    }
+
+    public void open(ca.uwaterloo.java_fuse.proto.OpenRequestParams request,
+                     io.grpc.stub.StreamObserver<ca.uwaterloo.java_fuse.proto.OpenResponseParams> responseObserver)
+    {
+        FileInputStream fileInputStream = null;
+        try
+        {
+            fileInputStream = new FileInputStream(new File(request.getPath()));
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+
+        OpenResponseParams openResponseParams = null;
+        if (null != fileInputStream)
+        {
+            try
+            {
+                openResponseParams =
+                    OpenResponseParams.newBuilder()
+                        .setUid(1000)
+                        .setFileHandle(fileInputStream.getFD().hashCode())
+                        .build();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        if (null != openResponseParams)
+        {
+            responseObserver.onNext(openResponseParams);
+            responseObserver.onCompleted();
+        }
+    }
+
+    public void rename(ca.uwaterloo.java_fuse.proto.RenameRequestParams request,
+                       io.grpc.stub.StreamObserver<ca.uwaterloo.java_fuse.proto.VoidMessage> responseObserver)
+    {
+        File file = new File(request.getOldPath());
+        File newFile = new File(request.getNewPath());
+        file.renameTo(newFile);
 
         responseObserver.onNext(VoidMessage.getDefaultInstance());
         responseObserver.onCompleted();

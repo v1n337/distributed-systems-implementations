@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 @Getter
 @ToString
-public class Options
+class Options
 {
     private static Options instance;
     private AppConfig appConfig;
@@ -52,7 +52,7 @@ public class Options
         log.info("Options successfully read");
     }
 
-    public static void initializeInstance(String[] args)
+    static void initializeInstance(String[] args)
         throws Exception
     {
         if (null == instance)
@@ -61,7 +61,7 @@ public class Options
         }
     }
 
-    public static Options getInstance()
+    static Options getInstance()
         throws Exception
     {
         if (null == instance)
