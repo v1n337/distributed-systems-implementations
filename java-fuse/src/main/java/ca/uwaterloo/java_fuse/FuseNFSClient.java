@@ -25,17 +25,23 @@ public class FuseNFSClient extends FuseStubFS
     private static NFSFuseGrpc.NFSFuseBlockingStub grpcStub;
 
     public static void main(String[] args)
+        throws Exception
     {
+        Options.initializeInstance(args);
+
         FuseNFSClient fuseStub = new FuseNFSClient();
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("127.0.0.1", 50051)
-            .usePlaintext(true)
-            .build();
+        AppConfig appConfig = Options.getInstance().getAppConfig();
+        ManagedChannel channel =
+            ManagedChannelBuilder
+                .forAddress(appConfig.getServerAddress(), appConfig.getServerPort())
+                .usePlaintext(true)
+                .build();
         grpcStub = NFSFuseGrpc.newBlockingStub(channel);
 
         try
         {
             log.info("Mounting filesystem");
-            fuseStub.mount(Paths.get("/tmp/mnt"), true, false);
+            fuseStub.mount(Paths.get(appConfig.getClientMountPoint()), true, false);
         }
         finally
         {
@@ -90,13 +96,20 @@ public class FuseNFSClient extends FuseStubFS
     {
         log.info("In Mkdir - client");
 
-        MkDirRequestParams mkDirRequestParams =
-            MkDirRequestParams
-                .newBuilder()
-                .setPath(path)
-                .build();
+        if (path == null || Files.exists(Paths.get(path)))
+        {
+            return -ErrorCodes.EEXIST();
+        }
+        else
+        {
+            MkDirRequestParams mkDirRequestParams =
+                MkDirRequestParams
+                    .newBuilder()
+                    .setPath(path)
+                    .build();
 
-        grpcStub.mkdir(mkDirRequestParams);
+            grpcStub.mkdir(mkDirRequestParams);
+        }
 
         return 0;
     }

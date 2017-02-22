@@ -1,18 +1,30 @@
-# stock-trends-analyzer
-Pulls and detects stock trends over user-defined time periods, for a set of user-defined stock symbols, and dumps the output to separate CSV files
+# Java FUSE NFS
+Uses FUSE and gRPC to implement an NFS like interface 
 
 ## Requirements
-Text file containing stock symbols for each organization
+* Gradle
+* Java
 
 ## Run Commands
 
-### Fetching multiple organization histories
+* Build System
 ```
-./build/scripts/stock-trends-analyzer -fetch -configFilePath ./src/main/resources/appconfig.json -symbolsFilePath ./src/main/resources/symbols.txt -startDate 2010-01-01 -endDate 2016-12-31 -outputDirectory .
-```
-
-### Analyzing a single organizations history
-```
-./build/scripts/stock-trends-analyzer -analyze -configFilePath ./src/main/resources/appconfig.json -stockHistoryFilePath ./
+gradle build
 ```
 
+* Modify the app config if needed
+```
+./src/main/resources/app_config.json 
+```
+
+* Run Server
+```
+./build/bin/fuse-nfs-server -appConfigFile ./src/main/resources/app_config.json 
+```
+
+* Run Client
+```
+./build/bin/fuse-nfs-client -appConfigFile ./src/main/resources/app_config.json
+```
+
+The remote directory will now be mounted at the client mount point present in the app config

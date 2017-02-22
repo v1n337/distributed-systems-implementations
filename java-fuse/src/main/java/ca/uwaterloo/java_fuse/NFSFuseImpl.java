@@ -1,8 +1,9 @@
 package ca.uwaterloo.java_fuse;
 
-import ca.uwaterloo.java_fuse.proto.*;
-import jnr.x86asm.ERROR_CODE;
-import ru.serce.jnrfuse.ErrorCodes;
+import ca.uwaterloo.java_fuse.proto.GetAttrResponseParams;
+import ca.uwaterloo.java_fuse.proto.NFSFuseGrpc;
+import ca.uwaterloo.java_fuse.proto.ReadDirResponseParams;
+import ca.uwaterloo.java_fuse.proto.VoidMessage;
 import ru.serce.jnrfuse.struct.FileStat;
 
 import java.io.File;
@@ -17,7 +18,6 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 import static java.nio.file.attribute.PosixFilePermission.*;
 
 
