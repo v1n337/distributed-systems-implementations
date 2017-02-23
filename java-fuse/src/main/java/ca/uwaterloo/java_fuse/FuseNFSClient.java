@@ -1,18 +1,23 @@
 package ca.uwaterloo.java_fuse;
 
 import ca.uwaterloo.java_fuse.proto.*;
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import jnr.ffi.Pointer;
 import jnr.ffi.types.dev_t;
 import jnr.ffi.types.mode_t;
 import jnr.ffi.types.off_t;
+import jnr.ffi.types.size_t;
 import ru.serce.jnrfuse.ErrorCodes;
 import ru.serce.jnrfuse.FuseFillDir;
 import ru.serce.jnrfuse.FuseStubFS;
+import ru.serce.jnrfuse.NotImplemented;
 import ru.serce.jnrfuse.struct.FileStat;
 import ru.serce.jnrfuse.struct.FuseFileInfo;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -194,6 +199,73 @@ public class FuseNFSClient extends FuseStubFS
         grpcStub.rename(renameRequestParams);
 
         return 0;
+    }
+
+    @Override
+    @NotImplemented
+    public int read(String path, Pointer buf, @size_t long size, @off_t long offset, FuseFileInfo fi)
+    {
+        ReadRequestParams readRequestParams =
+            ReadRequestParams
+                .newBuilder()
+                .setPath(path)
+                .build();
+
+        ReadResponseParams readResponseParams = grpcStub.read(readRequestParams);
+
+        int bytesToRead = 0;
+        try
+        {
+            ByteBuffer contents;
+            byte[] contentBytes = readResponseParams.getText().getBytes("UTF-8");
+            contents = ByteBuffer.wrap(contentBytes);
+            bytesToRead = (int) Math.min(contents.capacity() - offset, size);
+            byte[] bytesRead = new byte[bytesToRead];
+
+            synchronized (this)
+            {
+                contents.position((int) offset);
+                contents.get(bytesRead, 0, bytesToRead);
+                buf.put(0, bytesRead, 0, bytesToRead);
+                contents.position(0);
+            }
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            e.printStackTrace();
+        }
+
+        return bytesToRead;
+    }
+
+    @Override
+    @NotImplemented
+    public int write(String path, Pointer buf, @size_t long size, @off_t long offset, FuseFileInfo fi)
+    {
+        int maxWriteIndex = (int) (offset + buf.size());
+        byte[] bytesToWrite = new byte[(int) buf.size()];
+
+        ByteBuffer contents = ByteBuffer.allocate(0);
+
+        synchronized (this)
+        {
+            if (maxWriteIndex > contents.capacity())
+            {
+                ByteBuffer newContents = ByteBuffer.allocate(maxWriteIndex);
+                newContents.put(contents);
+                contents = newContents;
+            }
+
+            buf.get(0, bytesToWrite, 0, (int) buf.size());
+            contents.position((int) offset);
+            contents.put(bytesToWrite);
+
+            WriteRequestParams writeRequestParams =
+                WriteRequestParams.newBuilder().setBytes(new String(bytesToWrite)).setPath(path).build();
+            grpcStub.write(writeRequestParams);
+            contents.position(0);
+        }
+        return (int) buf.size();
     }
 
 }

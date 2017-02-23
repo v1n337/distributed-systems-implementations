@@ -17,6 +17,8 @@ service NFSFuse
     rpc rmdir (RmDirRequestParams) returns (VoidMessage) {}
     rpc open (OpenRequestParams) returns (OpenResponseParams) {}
     rpc rename (RenameRequestParams) returns (VoidMessage) {}
+    rpc read (ReadRequestParams) returns (ReadResponseParams) {}
+    rpc write (WriteRequestParams) returns (VoidMessage) {}
 }
 
 message VoidMessage
@@ -75,3 +77,17 @@ message RenameRequestParams {
     string oldPath = 1;
     string newPath = 2;
 }
+
+message ReadRequestParams {
+    string path = 1;
+}
+
+message ReadResponseParams {
+    string text = 1;
+}
+
+message WriteRequestParams {
+    string bytes = 1;
+    string path = 2;
+}
+

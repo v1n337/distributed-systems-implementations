@@ -1,6 +1,7 @@
 package ca.uwaterloo.java_fuse;
 
 import ca.uwaterloo.java_fuse.proto.*;
+import org.apache.commons.io.FileUtils;
 import ru.serce.jnrfuse.struct.FileStat;
 
 import java.io.File;
@@ -201,4 +202,42 @@ public class NFSFuseImpl extends NFSFuseGrpc.NFSFuseImplBase
         responseObserver.onCompleted();
     }
 
+
+    public void read(ca.uwaterloo.java_fuse.proto.ReadRequestParams request,
+                     io.grpc.stub.StreamObserver<ca.uwaterloo.java_fuse.proto.ReadResponseParams> responseObserver)
+    {
+        String text = null;
+        try
+        {
+            text =
+                Files.readAllLines(Paths.get(request.getPath()))
+                    .stream().reduce((t, u) -> t + "\n" + u).get();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        ReadResponseParams readResponseParams =
+            ReadResponseParams.newBuilder().setText(text).build();
+
+        responseObserver.onNext(readResponseParams);
+        responseObserver.onCompleted();
+    }
+
+    public void write(ca.uwaterloo.java_fuse.proto.WriteRequestParams request,
+                      io.grpc.stub.StreamObserver<ca.uwaterloo.java_fuse.proto.VoidMessage> responseObserver)
+    {
+        try
+        {
+            FileUtils.writeByteArrayToFile(new File(request.getPath()), request.getBytes().getBytes());
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        responseObserver.onNext(VoidMessage.getDefaultInstance());
+        responseObserver.onCompleted();
+    }
 }

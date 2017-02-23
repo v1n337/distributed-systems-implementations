@@ -1,0 +1,87 @@
+\documentclass[a4paper]{article}
+\usepackage[T1]{fontenc}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[parfill]{parskip}
+
+\title{CS798 - Assignment 2}
+\author{Vineet John\\v2john@uwaterloo.ca}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+This report describes the approach undertaken to design and implement the simple distributed file system as described in the \href{https://cs.uwaterloo.ca/~alkiswan/Classes/CS798/internal/a2.html}{assignment question}. The idea is to implement the system in such a way that a remote file-system is accessible similar to a local directory.
+
+Section \ref{sec:design} discusses the design decisions of the architecture. Section \ref{sec:implementation} describes the details of the implementation. Section \ref{sec:failure-recovery} comments on the failure recovery mechanisms of the system, and section \ref{sec:evaluation} talks discusses the evaluation strategies. The report concludes with a discussion in Section \ref{sec:discussion}.
+
+\section{Design} \label{sec:design}
+The architecture was implemented through an RPC protocol combined with FUSE\cite{libfusel7:online}. The system used gRPC\cite{grpcgrpc62:online} to convey the intercepted system calls for file-system operations to the remote server. The decision to utilize gRPC was based on the ease of development and having a fixed contract enforcing intermediary.
+
+The methods imported by the client are implemented in a manner that extends the file-system base classed offering of the FUSE library. The methods  relay the required parameters to a server-side listener, that in turn executes the server-side portion of the call and returns parameters to the client for further usage.
+
+The server side doesn't emulate a FUSE filesystem, but simply provide a base on which to execute the system calls requested by the client program.
+
+\section{Implementation} \label{sec:implementation}
+The fuse binding used was JNR-Fuse\cite{SerCeMan78:online}. This library relies on JNR (Java Native Runtime) to emulate the behavior of FUSE. 
+
+The interface between the client and server layers of the gRPC mechanism interface through Protocol Buffer\cite{Protocol27:online} files that define the structure of the data.
+
+The application was coded in Java, with the client side extending the FUSE file-system class, and the server side behaving as a simple RPC server that exported the methods defined in the Protocol buffer files.
+
+The following methods have been implemented as a part of the application:
+\begin{itemize}
+    \item 
+    getattr
+    \item
+    readdir
+    \item
+    mkdir
+    \item
+    create
+    \item
+    rmdir
+    \item
+    open
+    \item
+    rename
+    \item 
+    read
+    \item 
+    write
+\end{itemize}
+
+The instructions to run the application are included in the README.md files included in the source code archive.
+
+\section{Failure Recovery} \label{sec:failure-recovery}
+The writes made to the server are persisted to disk. There are no other failure recovery mechanisms included with the current implementation.
+
+A simple mechanism to alleviate failures however, could be simply using the RPC paradigm proposed by NFS i.e. offering only an interface to idempotent request, which ensure that even if a server crashes, and a client is unsure about the execution of the last call it made, the client can simply re-try the same call with no adverse effects.
+
+\section{Evaluation} \label{sec:evaluation}
+The evaluation of the system was limited to the testing of the implemented commands, of which a few were unsuccessful in the current version of the implementation. They will be described in Section \ref{sec:discussion}.
+
+However, a few ways in which a evaluation could be done for a completed and fully-functional system are enumerated below:
+\begin{itemize}
+    \item 
+    Bandwidth maximization testing could be done by using the \texttt{cp} command to transfer a large file from the client to the directory the server is mounted on.
+    \item 
+    Bursty writes i.e. a high number of writes with a low data volume could be used to indicate how much value is being added by the presence of a BATCHED COMMIT based protocol, which waits for several writes by using asynchronous ACKs before persisting the batched writes.
+\end{itemize}
+
+\section{Discussion} \label{sec:discussion}
+Although the methods listed in section \ref{sec:implementation} have been added as part of the gRPC service and have been implemented, there persists an issue with the creation of new entities in the mounted system as well as reading from existing files.
+
+The commands to query the system, such as \texttt{ls} and changing directories as well as removing directories works perfectly, but thus far, the root cause for the errors remains unknown. A potential source for the issues could be the relative difficulty of interoperability between complex classes in the JNR-Fuse library, and the requirement for the passable parameters to adhere to the gRPC protocol buffer data formats.
+
+\bibliographystyle{unsrt}
+\bibliography{sample}
+
+\end{document}
