@@ -1,5 +1,5 @@
-\documentclass[a4paper]{article}
-\usepackage[T1]{fontenc}
+\documentclass{scrartcl}
+% \usepackage[T1]{fontenc}
 
 %% Sets page size and margins
 \usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
@@ -25,14 +25,14 @@ Section \ref{sec:design} discusses the design decisions of the architecture. Sec
 \section{Design} \label{sec:design}
 The architecture was implemented through an RPC protocol combined with FUSE\cite{libfusel7:online}. The system used gRPC\cite{grpcgrpc62:online} to convey the intercepted system calls for file-system operations to the remote server. The decision to utilize gRPC was based on the ease of development and having a fixed contract enforcing intermediary.
 
-The methods imported by the client are implemented in a manner that extends the file-system base classed offering of the FUSE library. The methods  relay the required parameters to a server-side listener, that in turn executes the server-side portion of the call and returns parameters to the client for further usage.
+The methods imported by the client are implemented in a manner that extends the file-system base class offering of the FUSE library. The methods relay the required parameters to a server-side listener, that in turn executes the server-side portion of the call and returns parameters to the client for further usage.
 
 The server side doesn't emulate a FUSE filesystem, but simply provide a base on which to execute the system calls requested by the client program.
 
 \section{Implementation} \label{sec:implementation}
 The fuse binding used was JNR-Fuse\cite{SerCeMan78:online}. This library relies on JNR (Java Native Runtime) to emulate the behavior of FUSE. 
 
-The interface between the client and server layers of the gRPC mechanism interface through Protocol Buffer\cite{Protocol27:online} files that define the structure of the data.
+The interface between the client and server layers of the gRPC mechanism are connected through through Protocol Buffer\cite{Protocol27:online} files that define the structure of the data exchanged.
 
 The application was coded in Java, with the client side extending the FUSE file-system class, and the server side behaving as a simple RPC server that exported the methods defined in the Protocol buffer files.
 
